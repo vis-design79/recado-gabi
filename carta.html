@@ -1,0 +1,597 @@
+<title>Depois da Noite</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Caveat:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+  :root{
+    --ink:#2c1830;
+    --ink-soft:#5a4256;
+    --paper:#fdf5ec;
+    --paper-strong:#fffaf3;
+    --gold:#e7ac5c;
+    --gold-deep:#c97f3f;
+    --rose:#d9738a;
+    --plum:#5a2a52;
+    --line: rgba(90,42,82,0.16);
+    --cream-text:#fbeee0;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background: #150a24;
+    color: var(--ink);
+    font-family: 'Lora', Georgia, 'Times New Roman', serif;
+    line-height:1.65;
+    overflow-x:hidden;
+  }
+
+  #sky{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    z-index:-2;
+    display:block;
+  }
+
+  .hearts-ambient{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .hearts-ambient svg{
+    position:absolute;
+    bottom:-10%;
+    opacity:0;
+    animation: drift 16s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hearts-ambient svg{ animation:none; opacity:0; display:none; }
+  }
+  @keyframes drift{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); opacity:0; }
+    10%{ opacity:.55; }
+    85%{ opacity:.35; }
+    100%{ transform:translateY(-115vh) translateX(var(--drift-x,20px)) rotate(12deg); opacity:0; }
+  }
+
+  .progress-rail{
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:3px;
+    background:rgba(255,255,255,0.08);
+    z-index:50;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--rose), var(--gold));
+    box-shadow:0 0 12px rgba(231,172,92,0.7);
+  }
+
+  main{
+    position:relative;
+    z-index:1;
+    max-width:760px;
+    margin:0 auto;
+    padding: 0 24px;
+  }
+
+  section{
+    padding-block: 96px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:22px;
+  }
+
+  .hero{
+    min-height:88svh;
+    justify-content:center;
+    padding-block: 64px;
+  }
+  .eyebrow{
+    font-family:'Lora',serif;
+    font-style:italic;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    color: var(--gold);
+    opacity:.9;
+  }
+  .hero h1{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: clamp(3.2rem, 11vw, 5.6rem);
+    color: var(--cream-text);
+    margin:0;
+    line-height:.95;
+  }
+  .hero p.lede{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:400;
+    font-size: clamp(1.15rem, 3vw, 1.5rem);
+    color: var(--cream-text);
+    opacity:.88;
+    max-width:32ch;
+    text-wrap: balance;
+    margin:0;
+  }
+  .scroll-cue{
+    margin-top:28px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color: var(--cream-text);
+    opacity:.7;
+    font-size:.82rem;
+    letter-spacing:.05em;
+  }
+  .scroll-cue svg{ animation: bob 1.8s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .scroll-cue svg{ animation:none; } }
+  @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(6px);} }
+
+  .card{
+    background: linear-gradient(180deg, var(--paper-strong), var(--paper));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding: 34px 32px;
+    box-shadow: 0 20px 50px -25px rgba(0,0,0,0.55);
+    width:100%;
+  }
+
+  .card h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    margin:0 0 14px;
+    color: var(--plum);
+    text-wrap: balance;
+  }
+  .card p{
+    margin:0 0 12px;
+    color: var(--ink-soft);
+    font-size:1.05rem;
+  }
+  .card p:last-child{ margin-bottom:0; }
+  .accent{
+    background: linear-gradient(90deg, var(--gold-deep), var(--rose));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    font-weight:600;
+  }
+
+  .reveal{
+    opacity:0;
+    transform: translateY(28px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .reveal.in-view{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+  }
+
+  .reasons-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .reasons-list li{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    opacity:0;
+    transform:translateX(-16px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .reasons-list.in-view li{ opacity:1; transform:none; }
+  .reasons-list.in-view li:nth-child(1){ transition-delay:.05s; }
+  .reasons-list.in-view li:nth-child(2){ transition-delay:.18s; }
+  .reasons-list.in-view li:nth-child(3){ transition-delay:.31s; }
+  .reasons-list.in-view li:nth-child(4){ transition-delay:.44s; }
+  .reasons-list.in-view li:nth-child(5){ transition-delay:.57s; }
+  .reasons-list.in-view li:nth-child(6){ transition-delay:.70s; }
+  @media (prefers-reduced-motion: reduce){
+    .reasons-list li{ opacity:1; transform:none; transition:none; }
+  }
+  .reasons-list svg{ flex:none; margin-top:3px; }
+  .reasons-list span{ color:var(--ink-soft); font-size:1.02rem; }
+
+  .interactive-card{ text-align:left; }
+  .touch-btn{
+    font-family:'Fraunces', serif;
+    font-size:1.05rem;
+    font-weight:600;
+    color: var(--paper-strong);
+    background: linear-gradient(135deg, var(--rose), var(--gold-deep));
+    border:none;
+    border-radius:999px;
+    padding: 14px 30px;
+    cursor:pointer;
+    box-shadow: 0 12px 24px -10px rgba(217,115,138,0.6);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .touch-btn:hover{ transform:translateY(-2px); box-shadow:0 16px 30px -10px rgba(217,115,138,0.75); }
+  .touch-btn:active{ transform:translateY(0); }
+  .touch-btn:focus-visible{ outline:3px solid var(--gold); outline-offset:3px; }
+
+  .affirmation{
+    margin-top:18px;
+    min-height:2.6em;
+    font-family:'Caveat', cursive;
+    font-size:1.7rem;
+    color: var(--plum);
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .affirmation.swap{ opacity:0; transform:translateY(6px); }
+
+  .closing{
+    align-items:center;
+    text-align:center;
+    padding-block: 120px 100px;
+  }
+  .closing .card{ text-align:left; }
+  .signature{
+    font-family:'Caveat', cursive;
+    font-size:2.1rem;
+    color: var(--plum);
+    margin-top:22px;
+  }
+  .signature .date{
+    display:block;
+    font-family:'Lora',serif;
+    font-size:.85rem;
+    font-style:italic;
+    color: var(--ink-soft);
+    margin-top:4px;
+  }
+
+  .restart{
+    margin-top:38px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color: var(--cream-text);
+    opacity:.75;
+    text-decoration:none;
+    font-size:.85rem;
+    letter-spacing:.03em;
+    border:1px solid rgba(251,238,224,0.3);
+    padding:10px 18px;
+    border-radius:999px;
+    transition: opacity .2s ease, background .2s ease;
+  }
+  .restart:hover{ opacity:1; background:rgba(251,238,224,0.08); }
+  .restart:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  @media (max-width:520px){
+    section{ padding-block:72px; }
+    .card{ padding:26px 22px; }
+  }
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="hearts-ambient" aria-hidden="true" id="ambientHearts"></div>
+<div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+
+<main>
+
+  <section class="hero">
+    <p class="eyebrow">uma pausa no meio do caminho</p>
+    <h1>Para você,</h1>
+    <p class="lede">que carrega tanta coisa e ainda assim ilumina tudo por onde passa.</p>
+    <div class="scroll-cue">
+      <span>role pra continuar</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+  </section>
+
+  <section>
+    <div class="card reveal">
+      <h2>Eu sei que os dias andam pesados.</h2>
+      <p>O trabalho cobra, o futuro parece uma pergunta sem resposta, e às vezes dá vontade de desligar tudo e não pensar em mais nada. Eu vejo isso — vejo o cansaço antes mesmo de você dizer qualquer palavra.</p>
+      <p>E eu só queria que você soubesse: <span class="accent">você não precisa carregar isso sozinha</span>, e não precisa ter tudo resolvido pra merecer descanso. Hoje eu só quero lembrar você de algumas coisas.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="card reveal">
+      <h2>O que eu vejo quando olho pra você</h2>
+      <ul class="reasons-list reveal">
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#d9738a"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/></svg>
+          <span>A força que você usa pra levantar todo dia, mesmo quando ninguém percebe o esforço que isso custa.</span>
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#d9738a"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/></svg>
+          <span>A forma como você se importa com as pessoas, mesmo cansada, mesmo sem energia sobrando.</span>
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#d9738a"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/></svg>
+          <span>Sua inteligência — a forma como você pensa nos problemas até encontrar o caminho, nem que demore.</span>
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#d9738a"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/></svg>
+          <span>Seu senso de humor, que consegue aparecer até nos dias ruins.</span>
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#d9738a"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/></svg>
+          <span>O jeito que você tenta de novo, e não desiste, mesmo quando parece que nada está dando certo.</span>
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#d9738a"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/></svg>
+          <span>Simplesmente por ser quem você é — não pelo que você produz, entrega ou conquista.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="card reveal">
+      <h2>Sobre o futuro que assusta</h2>
+      <p>Ninguém tem o futuro resolvido — nem quem parece ter. O trabalho não é a medida do seu valor, e uma fase difícil não é o resto da sua vida.</p>
+      <p>Você não precisa ter todas as respostas agora. Só precisa continuar dando <span class="accent">um passo de cada vez</span> — e eu vou estar bem ao seu lado em cada um desses passos.</p>
+      <p>Se hoje parece escuro, é porque a gente ainda não chegou na parte clara. Ela vem. E a gente atravessa isso junto.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="card reveal interactive-card">
+      <h2>Sempre que precisar</h2>
+      <p>Guardei aqui alguns lembretes pra quando o dia estiver difícil. Toque quantas vezes quiser.</p>
+      <button class="touch-btn" id="touchBtn" type="button">toque aqui</button>
+      <p class="affirmation" id="affirmationText" aria-live="polite">Você é mais forte do que imagina.</p>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="card reveal">
+      <h2 style="font-family:'Caveat',cursive; font-weight:700; font-size:clamp(2rem,6vw,2.6rem);">Então, antes de fechar essa página...</h2>
+      <p>Eu só queria que você lembrasse: você é o motivo de tantos dos meus melhores dias. É especial de um jeito que nenhuma lista consegue explicar direito.</p>
+      <p>E não importa o tamanho da tempestade lá fora — <span class="accent">meu amor por você não muda, não diminui, não vai embora.</span></p>
+      <p class="signature">Com todo o meu amor,
+        <span class="date">22 de setembro de 2026</span>
+      </p>
+    </div>
+    <a href="#top" class="restart" id="restartLink">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+      voltar ao começo
+    </a>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- Sky canvas: night -> dawn gradient + stars + moon/sun ----
+  var canvas = document.getElementById('sky');
+  var ctx = canvas.getContext('2d');
+  var W, H, stars = [];
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    stars = [];
+    var count = Math.min(140, Math.floor((W*H)/9000));
+    for(var i=0;i<count;i++){
+      stars.push({
+        x: Math.random()*W,
+        y: Math.random()*H*0.75,
+        r: Math.random()*1.4+0.4,
+        phase: Math.random()*Math.PI*2,
+        speed: 0.6+Math.random()*1.2
+      });
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function lerpColor(c1,c2,t){
+    return [ lerp(c1[0],c2[0],t), lerp(c1[1],c2[1],t), lerp(c1[2],c2[2],t) ];
+  }
+  function rgb(c){ return 'rgb('+Math.round(c[0])+','+Math.round(c[1])+','+Math.round(c[2])+')'; }
+
+  var stops = [
+    { at:0.00, top:[11,6,32],   bottom:[36,18,56] },
+    { at:0.35, top:[42,19,69],  bottom:[91,42,85] },
+    { at:0.65, top:[122,59,94], bottom:[217,112,122] },
+    { at:1.00, top:[255,217,160], bottom:[255,138,92] }
+  ];
+  function skyColors(f){
+    for(var i=0;i<stops.length-1;i++){
+      var a=stops[i], b=stops[i+1];
+      if(f>=a.at && f<=b.at){
+        var t=(f-a.at)/(b.at-a.at);
+        return { top: lerpColor(a.top,b.top,t), bottom: lerpColor(a.bottom,b.bottom,t) };
+      }
+    }
+    return { top: stops[stops.length-1].top, bottom: stops[stops.length-1].bottom };
+  }
+
+  var scrollFrac = 0;
+  function updateScroll(){
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    scrollFrac = max>0 ? Math.min(1, Math.max(0, window.scrollY/max)) : 0;
+    var fill = document.getElementById('progressFill');
+    if(fill) fill.style.width = (scrollFrac*100).toFixed(1)+'%';
+  }
+  window.addEventListener('scroll', updateScroll, { passive:true });
+  updateScroll();
+
+  var t0 = performance.now();
+
+  function bodyPosition(f){
+    // low point around f=0.4 (moon at its dimmest), rising into a bright sun by f=1
+    var x, y, phase, r, glow, color;
+    if(f < 0.4){
+      var k = f/0.4;
+      x = lerp(0.16,0.5,k);
+      y = lerp(0.16,0.62,k);
+      r = lerp(26,16,k);
+      color = lerpColor([223,232,255],[190,180,210],k);
+      glow = lerp(38,14,k);
+    } else {
+      var k2 = (f-0.4)/0.6;
+      x = lerp(0.5,0.82,k2);
+      y = lerp(0.62,0.14,k2);
+      r = lerp(16,34,k2);
+      color = lerpColor([190,180,210],[255,207,122],k2);
+      glow = lerp(14,55,k2);
+    }
+    return { x:x*W, y:y*H, r:r, color:color, glow:glow };
+  }
+
+  function draw(now){
+    var sc = skyColors(scrollFrac);
+    var grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, rgb(sc.top));
+    grad.addColorStop(1, rgb(sc.bottom));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    var starAlpha = Math.max(0, 1 - scrollFrac/0.75);
+    if(starAlpha > 0.01){
+      var time = reduced ? 0 : (now-t0)/1000;
+      for(var i=0;i<stars.length;i++){
+        var s = stars[i];
+        var tw = reduced ? 0.8 : 0.5+0.5*Math.sin(time*s.speed + s.phase);
+        ctx.globalAlpha = starAlpha * (0.25 + 0.75*tw);
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    var b = bodyPosition(scrollFrac);
+    var glowGrad = ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r*3.2);
+    glowGrad.addColorStop(0, 'rgba('+Math.round(b.color[0])+','+Math.round(b.color[1])+','+Math.round(b.color[2])+',0.55)');
+    glowGrad.addColorStop(1, 'rgba('+Math.round(b.color[0])+','+Math.round(b.color[1])+','+Math.round(b.color[2])+',0)');
+    ctx.fillStyle = glowGrad;
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r*3.2,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = rgb(b.color);
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fill();
+
+    if(!reduced) requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  if(reduced){
+    setInterval(function(){ draw(performance.now()); }, 200);
+  }
+
+  // ---- ambient floating hearts ----
+  var ambient = document.getElementById('ambientHearts');
+  if(!reduced && ambient){
+    var positions = [8,22,37,52,68,80,93];
+    positions.forEach(function(left, idx){
+      var svgns = 'http://www.w3.org/2000/svg';
+      var el = document.createElementNS(svgns,'svg');
+      el.setAttribute('width', 14+ (idx%3)*6);
+      el.setAttribute('height', 14+ (idx%3)*6);
+      el.setAttribute('viewBox','0 0 24 24');
+      el.innerHTML = '<path fill="#f2c1cf" d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/>';
+      el.style.left = left+'%';
+      el.style.setProperty('--drift-x', (idx%2===0? 24:-24)+'px');
+      el.style.animationDelay = (idx*2.3)+'s';
+      el.style.animationDuration = (14+idx*1.6)+'s';
+      ambient.appendChild(el);
+    });
+  }
+
+  // ---- reveal on scroll ----
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
+  }
+
+  // ---- interactive affirmations + heart burst ----
+  var affirmations = [
+    'Você é mais forte do que imagina.',
+    'Está tudo bem não estar bem hoje.',
+    'Eu escolho você, sempre, em todos os dias — bons ou ruins.',
+    'Descansar não é fraqueza.',
+    'Eu tenho muito orgulho de você.',
+    'Isso também vai passar.',
+    'Você não está sozinha nessa.',
+    'Cada pequeno passo já é progresso.'
+  ];
+  var idx = 0;
+  var btn = document.getElementById('touchBtn');
+  var text = document.getElementById('affirmationText');
+
+  function burst(x,y){
+    if(reduced) return;
+    for(var i=0;i<8;i++){
+      (function(i){
+        var svgns = 'http://www.w3.org/2000/svg';
+        var el = document.createElementNS(svgns,'svg');
+        var size = 10+Math.random()*8;
+        el.setAttribute('width', size);
+        el.setAttribute('height', size);
+        el.setAttribute('viewBox','0 0 24 24');
+        el.innerHTML = '<path fill="#d9738a" d="M12 21s-6.7-4.35-9.3-8.1C.8 10.1 1.4 6.4 4.4 4.9c2.3-1.2 4.9-.4 6.3 1.6.4.6 1.2.6 1.6 0 1.4-2 4-2.8 6.3-1.6 3 1.5 3.6 5.2 1.7 8-2.6 3.75-9.3 8.1-9.3 8.1z"/>';
+        el.style.position = 'fixed';
+        el.style.left = x+'px';
+        el.style.top = y+'px';
+        el.style.zIndex = 60;
+        el.style.pointerEvents = 'none';
+        el.style.transition = 'transform 900ms ease-out, opacity 900ms ease-out';
+        document.body.appendChild(el);
+        var angle = (Math.PI*2*i)/8 + Math.random()*0.4;
+        var dist = 60+Math.random()*40;
+        requestAnimationFrame(function(){
+          el.style.transform = 'translate('+Math.cos(angle)*dist+'px,'+(Math.sin(angle)*dist-40)+'px)';
+          el.style.opacity = '0';
+        });
+        setTimeout(function(){ el.remove(); }, 950);
+      })(i);
+    }
+  }
+
+  if(btn && text){
+    btn.addEventListener('click', function(e){
+      idx = (idx+1) % affirmations.length;
+      text.classList.add('swap');
+      setTimeout(function(){
+        text.textContent = affirmations[idx];
+        text.classList.remove('swap');
+      }, 180);
+      var rect = btn.getBoundingClientRect();
+      burst(rect.left+rect.width/2, rect.top+rect.height/2);
+    });
+  }
+
+  var restart = document.getElementById('restartLink');
+  if(restart){
+    restart.addEventListener('click', function(e){
+      e.preventDefault();
+      window.scrollTo({ top:0, behavior: reduced ? 'auto' : 'smooth' });
+    });
+  }
+})();
+</script>
